@@ -1,0 +1,7 @@
+__pycache__/
+.env
+api_token.py
+sponsors.json
+.vscode/
+.venv/
+logs/
