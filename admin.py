@@ -8,7 +8,6 @@ from storage import sponsors, users, results, save_sponsors
 
 admin_router = Router()
 
-# Фильтр для админов
 def is_admin(message: Message) -> bool:
     return message.from_user.id in ADMIN_IDS
 
@@ -47,17 +46,14 @@ async def save_sponsor(message: Message, state: FSMContext):
         
     sponsor = message.text.strip()
     
-    # Очищаем и форматируем username
     if sponsor.startswith("https://t.me/"):
         sponsor = "@" + sponsor.replace("https://t.me/", "")
     elif not sponsor.startswith("@"):
         sponsor = "@" + sponsor
     
-    # Добавляем спонсора (set не допустит дубликатов)
     old_count = len(sponsors)
     sponsors.add(sponsor)
     
-    # Сохраняем в файл
     save_sponsors()
     
     await state.clear()
@@ -99,7 +95,6 @@ async def confirm_delete_sponsor(callback: CallbackQuery):
     
     if sponsor in sponsors:
         sponsors.remove(sponsor)
-        # Сохраняем изменения в файл
         save_sponsors()
         await callback.message.edit_text(
             f"✅ Спонсор {sponsor} удален!\n"
@@ -149,7 +144,6 @@ async def stats(message: Message):
     confirmed_users = sum(1 for u in users.values() if u.get("confirmed", False))
     total_tests = len(results)
     
-    # Средний балл
     avg_score = 0
     if results:
         avg_score = sum(r.get("score", 0) for r in results) / len(results)
@@ -178,7 +172,6 @@ async def exit_admin(message: Message):
         reply_markup=user_menu()
     )
 
-# Обработчик отмены для всех состояний
 @admin_router.message(F.text == "/cancel")
 async def cancel_handler(message: Message, state: FSMContext):
     if not is_admin(message):
